@@ -151,9 +151,11 @@ addDep (dep: Dep) {
 ![多个dep](/postimg/2021-01-11_235255.png)
 
 #### 更新
+关于更新可以看下一篇 [更新文档](http://localhost:4000/2019/08/20/vue/vue-update/)。
 
+#### 总结
 
-关于Vue中 watcher和 dep的关系，以及 watcher的批量更新机制，思考了一段时间，最终绘制成一张图，如下：
+关于Vue中 watcher和 dep的关系，以及 watcher的批量更新机制，思考了很长一段时间，最终绘制成一张图，如下：
 
 ![Watcher绑定机制](/postimg/20210111758443315.png)
 
