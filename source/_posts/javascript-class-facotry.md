@@ -2,6 +2,7 @@
 title: javascript类工厂的实现
 date: 2014-08-01 01:19:17
 tags:
+description: 工厂模式。
 ---
 最近在研究关于javascript类的实现，通过类来实现重用与共享。
 

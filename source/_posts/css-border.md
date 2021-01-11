@@ -2,6 +2,7 @@
 title: css中的border
 date: 2014-03-27 15:52:50
 tags:
+description: 哈哈哈，其实就是css border的一些疑问。
 ---
 曾经一直以为html中的border是直角的，直到有一天：
 ``` css

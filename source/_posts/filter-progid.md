@@ -2,6 +2,7 @@
 title: filter:progid:DXImageTransform.Microsoft.AlphaImageLoader
 date: 2014-04-16 15:56:59
 tags:
+description: 浏览器如何显示本地图片，主要针对IE.
 ---
 很多时候需要将图片显示在网页上，一般都会这样做，如下:
 ``` html

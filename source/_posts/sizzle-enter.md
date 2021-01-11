@@ -2,6 +2,7 @@
 title: sizzle入口源码分析
 date: 2014-08-28 14:46:50
 tags:
+description: sizzle入口源码分析
 ---
 ``` javascript
 var Sizzle = function( selector, context, results, seed ) {

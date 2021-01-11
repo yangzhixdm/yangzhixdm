@@ -2,6 +2,7 @@
 title: javascript针对IE的文档加载IEContentLoaded
 date: 2014-08-01 01:02:11
 tags:
+description: 哈哈哈，IE一直是开发人员的痛。
 ---
 1. IEContendLoaded.js
 

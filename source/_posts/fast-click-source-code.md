@@ -2,6 +2,7 @@
 title: FastClick.js源码解读
 date: 2016-11-25 16:50:07
 tags:
+description: 最近使用 FastClick 碰到一些问题，于是对FastClick.js源码进行了一些分析。
 ---
 最近H5 APP开发过程中，遇到各种许多问题，诸如点击无效，checkbox无法选中，点击穿透等问题。
 一切罪责最终都指向了fastclick，于是决定要翻开其源码see see ，否则一些问题真如盲人摸象一般。

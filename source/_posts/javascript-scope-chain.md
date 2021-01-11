@@ -2,6 +2,7 @@
 title: javascript中的[[scope]],scope chain,execution context
 date: 2013-12-09 11:56:17
 tags:
+description: javascript中的[[scope]],scope chain,execution context
 ---
 参考文章:
 勇敢的心:http://blog.sina.com.cn/s/blog_912389e5010120n2.html

@@ -2,6 +2,7 @@
 title: jquery选择器实例
 date: 2014-08-26 17:39:29
 tags:
+description: jQuery的一些操作。
 ---
 jQuery 的选择器可谓之强大无比，这里简单地总结一下常用的元素查找方法 
  

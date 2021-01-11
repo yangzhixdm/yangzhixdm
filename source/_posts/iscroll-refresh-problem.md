@@ -2,6 +2,7 @@
 title: IScroll 图片导致refresh不准确问题
 date: 2017-01-06 18:11:17
 tags:
+description: 最近同事在用iscrolljs做app端的滚动。
 ---
 最近同事在用iscrolljs做app端的滚动。
 页面中的内容是采用ajax加载出来的，但是在上拉的时候，不知道为什么总是拉不到底部，而查看容器的高度又是正确的。

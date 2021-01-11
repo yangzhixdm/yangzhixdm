@@ -2,6 +2,7 @@
 title: line-height 与垂直居中
 date: 2014-03-29 18:06:22
 tags:
+description: 关于 line-height 的一些基础知识。
 ---
 在此之前，对于line-height 与垂直居中的问题，经常碰到。 
 

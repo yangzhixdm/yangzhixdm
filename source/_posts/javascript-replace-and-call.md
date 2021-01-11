@@ -2,6 +2,7 @@
 title: javascript中call与replace方法!
 date: 2014-07-31 22:57:26
 tags:
+description: javascript细节。
 ---
 ### call方法
 

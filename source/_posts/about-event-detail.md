@@ -2,6 +2,7 @@
 title: 关于addEventListener绑定事件的一些细节
 date: 2016-11-18 15:50:37
 tags:
+description: 关于addEventListener绑定事件的一些细节，主要针对其中的一些额外参数的理解。
 ---
 最近在读 IScroll 源码，发现其中的_initEvent 事件方法有点奇怪。如下：
 

@@ -2,6 +2,7 @@
 title: Sizzle.filter [ 源码分析 ]
 date: 2014-08-27 21:04:46
 tags:
+description: jQuery中Sizzle引擎的filter的方法分析。
 ---
 最近一直在研究Sizzle选择器,对于其中的原理确实不得不佩服!
 

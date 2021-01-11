@@ -2,6 +2,7 @@
 title: jQuery操作select、checkbox、radio!
 date: 2014-01-09 11:24:14
 tags:
+description: jQuery的一些简单操作。
 ---
 ### Select
 jQuery获取Select选择的Text和Value: 

@@ -2,6 +2,7 @@
 title:  JavaScript 实现继承.
 date: 2015-08-18 11:45:24
 tags:
+description: javascript基础，关于继承。
 ---
 ### 原型继承
 对于javascript中的继承，由于js中没有后端语言中的类式继承，所以js中的继承，一般都是原型继承(prototype)。

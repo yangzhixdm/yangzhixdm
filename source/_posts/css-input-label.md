@@ -2,6 +2,7 @@
 title: CSS深入之label与input对齐
 date: 2014-02-18 11:49:47
 tags:
+description: css中针对label与input需要对齐的问题探索。
 ---
 我想很多人都会碰到label与input 对齐的问题。
 

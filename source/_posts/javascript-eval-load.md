@@ -2,6 +2,7 @@
 title: JS window eval and load script
 date: 2014-06-04 09:46:48
 tags:
+description: 一些小的想法。
 ---
 1 .执行全局的 eval 代码
 ``` javascript

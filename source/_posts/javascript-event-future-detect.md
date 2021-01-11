@@ -2,6 +2,7 @@
 title: javascript事件特性检测代替浏览器嗅探
 date: 2014-07-31 23:10:17
 tags:
+description: javascript特性
 ---
 参考文章：http://perfectionkills.com/detecting-event-support-without-browser-sniffing/
 

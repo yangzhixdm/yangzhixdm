@@ -2,6 +2,7 @@
 title: javascript中typeof唯一一个应用
 date: 2014-08-01 00:57:26
 tags:
+description: 关于typeof 小小总结。
 ---
 对于javascript中typeof唯一一个应用，就是用来判断变量是否被定声明，或者初始化。
 ``` javascript

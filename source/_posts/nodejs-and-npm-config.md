@@ -2,6 +2,7 @@
 title: nodeJS 与 npm(node pagkage manager) 配置
 date: 2015-06-06 12:16:22
 tags:
+description: nodejs安装。
 ---
 一直准备开始学习nodejs,但是不得不说nodejs在Windows上的安装与配置是个坑。
 尤其是npm的中模块位置的配置。

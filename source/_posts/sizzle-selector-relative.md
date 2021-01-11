@@ -2,6 +2,7 @@
 title: Sizzle.selectors.relative [ 源码分析 ]
 date: 2014-08-24 11:00:00 
 tags:
+description: jQuery中Sizzle引擎的selectors 分析。
 ---
 1 jQuery 对象Sizzle.selectors.relative中存放了块间关系符和对应的块间关系过滤函数，称为“块间关系过滤函数集” 块间关系符共有4种，其含义和过滤方式如图所示。
 ![](/postimg/20140824102652300.png)

@@ -2,6 +2,7 @@
 title: javascript中面向切面编程[Aop]
 date: 2014-10-22 15:37:23
 tags:
+description: 对Aop的一些简单的思考。
 ---
 对于java中的aop，早有耳闻，所谓面向切面编程，不过一直都以为只是在后台才会用到。
 

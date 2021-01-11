@@ -2,6 +2,7 @@
 title: jQuery Event add [ 源码分析 ]
 date: 2014-08-28 14:05:19
 tags:
+description: jQuery源码分析-事件add
 ---
 ``` javascript
 /*

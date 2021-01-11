@@ -2,6 +2,7 @@
 title: javascript事件绑定
 date: 2014-07-31 23:08:11
 tags:
+description: 事件绑定。
 ---
 1  事件绑定
 

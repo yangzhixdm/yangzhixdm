@@ -2,6 +2,7 @@
 title: jQuery缓存系统的前世今生
 date: 2014-08-01 22:52:07
 tags:
+description: jQuery缓存系统的前世今生。
 ---
 ### 第一代事件系统
 Eean wdwrad 大神的addEvent.js.当然最原始的jQuery事件系统也是照抄过来的.

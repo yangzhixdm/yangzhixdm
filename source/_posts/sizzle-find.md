@@ -2,6 +2,7 @@
 title: Sizzle.find [ 源码分析 ]
 date: 2014-08-28 15:03:04
 tags:
+description: jQuery中Sizzle引擎的find的方法分析。
 ---
 ``` javascript
 Sizzle.find = function( expr, context, isXML ) {

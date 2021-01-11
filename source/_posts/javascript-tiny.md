@@ -2,6 +2,7 @@
 title: 小东西!
 date: 2014-02-19 16:40:35
 tags:
+description: 开发必备。
 ---
 ### jquery在线引用
 ``` javascript

@@ -2,6 +2,7 @@
 title: js中array的sort()方法
 date: 2014-02-20 10:15:28
 tags:
+description: 排序问题。
 ---
 或许你一直在用javascript中的array的sort.
 

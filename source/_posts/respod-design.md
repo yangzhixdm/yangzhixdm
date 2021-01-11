@@ -2,6 +2,7 @@
 title: 响应式设计入门
 date: 2014-04-03 13:18:55
 tags:
+description: 响应式的开发的简单demo.
 ---
 html:
 ``` html

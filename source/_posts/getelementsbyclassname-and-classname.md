@@ -2,6 +2,7 @@
 title: getElementsByClassName与className和getAttribute!
 date: 2014-08-30 18:03:34
 tags:
+description: 一些小的细节。
 ---
 对于javascript中的getElementsByClassName 在IE 6/7/8 不支持问题。
 那么需要模拟出getElementsByClassName  需要采用className属性，这里就涉及到javascript中的getAttribute问题。

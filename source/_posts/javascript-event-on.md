@@ -2,6 +2,7 @@
 title: 你还在使用jquery的click(),bind()方法么
 date: 2013-12-28 14:51:03
 tags:
+description: 哈哈哈
 ---
 这里只是突然发现jquery 1.7 之后的事件绑定推荐了一些变化。jquery推荐使用on方法来绑定事件。
 

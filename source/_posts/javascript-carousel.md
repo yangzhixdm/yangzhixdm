@@ -2,6 +2,7 @@
 title: jQuery深入之大图轮播原理
 date: 2014-02-17 09:48:17
 tags:
+description: 就是一个轮播而已。
 ---
 也是用了很久的jQuery.
 

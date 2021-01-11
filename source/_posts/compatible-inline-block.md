@@ -2,6 +2,7 @@
 title: 兼容IE 6/7 inline-block
 date: 2014-07-31 23:10:22
 tags:
+description: 兼容IE 6/7 inline-block
 ---
 ``` html
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

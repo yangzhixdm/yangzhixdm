@@ -2,6 +2,7 @@
 title: jquery动态改变onclick属性失效的问题
 date: 2013-12-04 11:13:58
 tags:
+description: 哈哈哈哈
 ---
 
 <li id="" onclick =""></li>

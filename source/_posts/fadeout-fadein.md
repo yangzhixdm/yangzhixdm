@@ -2,6 +2,7 @@
 title: fadeOut-fadeIn效果
 date: 2014-04-21 10:44:51
 tags:
+description: fadeOut-fadeIn效果。
 ---
 首先感谢司徒正美的文章!
 

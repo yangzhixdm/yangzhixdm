@@ -2,6 +2,7 @@
 title: JavaScript中的定时器(Timer) 是如何工作的!
 date: 2015-07-11 10:42:49
 tags:
+description: 作为入门者来说，了解JavaScript中timer的工作方式是很重要的。
 ---
 作为入门者来说，了解JavaScript中timer的工作方式是很重要的。通常它们的表现行为并不是那么地直观，而这是因为它们都处在一个单一线程中。让我们先来看一看三个用来创建以及操作timer的函数。
 ``` javasctipt

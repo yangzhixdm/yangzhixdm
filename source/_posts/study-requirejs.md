@@ -2,6 +2,7 @@
 title: requireJs入门
 date: 2014-03-28 10:33:22
 tags:
+description: requireJs 学习。
 ---
 也是久闻AMD大名。但一直没有时间去弄这些东西。
 
