@@ -5,7 +5,7 @@ tags: Vue
 description: Vue组件挂载过程。
 ---
 
-### mount挂载过程
+#### mount挂载过程
 ``` javascript
 Vue.prototype._init = function (options?: Object) {
   const vm: Component = this
@@ -15,7 +15,7 @@ Vue.prototype._init = function (options?: Object) {
   }
 }
 ```
-运行时版本中存在两个$mount方法，Vue内部首先会将公开版本赋值给mount变量，然后重写$mount方法，并在该方法中进行调用mount方法，mount方法主要调用mountComponent方法，用于加载组件。
+运行时版本中存在两个 `$mount` 方法，Vue内部首先会将公开版本赋值给 `mount` 变量，然后重写 `$mount`方法，并在该方法中进行调用 `mount` 方法，`mount` 方法主要调用 `mountComponent` 方法，用于加载组件。
 
 ``` javascript
 // public mount method
@@ -283,13 +283,15 @@ const { compile, compileToFunctions } = createCompiler(baseOptions)
 
 compileToFunctions(template, {})
 ```
-有一点像插槽的感觉，后面如果要替换编译方案，直接修改createCompilerCreator就可以了，而内部的代码基本不需要改变。
+
+#### 总结
+有一点像插槽的感觉，后面如果要替换编译方案，直接修改 `createCompilerCreator` 就可以了，而内部的代码基本不需要改变。
 先编写好内部的代码，留出一个插槽，随时可以替换。
-有个两参数需要被设置，所以利用柯里化，则需要调用两次。此处利用了自执行方案，两次设定预定的基本参数，包括baseOption和baseCompile。
-而对于在baseCompiler包裹之后的complier方法，又利用了 createCompileToFunctionFn 在进行包裹一层，对于compiler出来的内容，利用new Function 转换成function代码。这里有一点像装饰模式。
+有个两参数需要被设置，所以利用柯里化，则需要调用两次。此处利用了自执行方案，两次设定预定的基本参数，包括 `baseOption` 和 `baseCompile`。
+而对于在 `baseCompiler` 包裹之后的 `complier` 方法，又利用了 `createCompileToFunctionFn` 在进行包裹一层，对于compiler出来的内容，利用new Function 转换成function代码。这里有一点像装饰模式。
 那么为什么不直接一次就搞定,要分两次去设置baseOption和baseCompile？
-1 baseOption是一定不会有改变的，而baseCompile是后面可能被调整的，他们两个是没有必要被耦合在一起。
+1 `baseOption` 是一定不会有改变的，而 `baseCompile` 是后面可能被调整的，他们两个是没有必要被耦合在一起。
 2 分开设置可以降低耦合性。
-3 compile 会被传递到后面的函数进一步进行处理，而baseOption只是被设置一次就可以
+3 `compile` 会被传递到后面的函数进一步进行处理，而 `baseOption` 只是被设置一次就可以
 4 如果要放在一起的话，那么其实也可以直接放到一个对象中就可以了，这应该是关于纯函数的划分问题。
-5 另外baseOption会被用到，需要和用户填入的option进行合并，而baseCompiler则是只需要存储一份就好了，保存在闭包中即可。后面需要用到编译，那么都可以用同一个baseCompile的包装function
+5 另外 `baseOption` 会被用到，需要和用户填入的option进行合并，而 `baseCompiler` 则是只需要存储一份就好了，保存在闭包中即可。后面需要用到编译，那么都可以用同一个 `baseCompile` 的包装function。
