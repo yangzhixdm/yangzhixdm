@@ -10,9 +10,20 @@ description: 最近一直在研究 node 的异步机制的实现，记录其中�
 
 #### 计算机基础知识
 1 中断
+中断是指计算机运行过程中，出现某些意外情况需主机干预时，机器能自动停止正在运行的程序并转入处理新情况的程序，处理完毕后又返回原被暂停的程序继续运行。
+包括硬件事件，用户事件，计算机故障，断电等事件。
+
 2 用户态，内核态
+
+*nix 系统在启动的时候，会对内存进行分配，内核kernel使用部分为内核态，之外让出的部分供应用程序使用为用户态。
+系统内核kernel中封装了对内存以及硬件操作的api。用户程序需要操纵内核态的数据，则需要通过内核kernel进行处理。这里就需要涉及从用户态切换到内核态。
+而切换是需要代价的。
+
 3 保护机制
+系统对内核进行保护，禁止高级应用程序直接操内核数据。
+
 4 切换
+用户态和内核态的切换。
 
 #### IO 多路复用
 1 select/poll
@@ -27,6 +38,9 @@ epoll_wait
 #### Node 事件循环
 1 事件循环
 2 浏览器事件循环
+nodejs 与浏览器端的 Web API 版本的事件循环最大的不同的是：
+在 nodejs 中事件循环不再是由单一个 task queue 和 micro-task queue 组成，而是由多个 阶段 phase 的多个回调函数队列 callbacks queues 组成一次事件循环 tick。 并且在每一个单独的阶段都存在一个单独的 回调函数 FIFO 队列。
+
 3 process.nextTick
 
 #### libuv
@@ -100,7 +114,73 @@ The poll phase has two main functions:
 - 如果 poll queue队列不为空，直接开始同步执行poll queue中回调，直到全部执行完或者触发最大的系统限制时间。
 - 如果poll queue为空，则判断是否存在是否有被setImmediate绑定的回调，如果有则直接执行，否则event loop 会等待回调进行到当前poll queue中，并立即执行他们。
 
-> 猜想： 估计poll 阶段应该有一个最小的执行时间，这里的等待应就是在最小时间还没到达时，就一直等待，时间到达就进入下一阶段了。毕竟存在一个idle空闲时间的机制。
+在这之前 系统会去获取 timeout的值，
+``` c++
+  timeout = 0
+  if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
+    timeout = uv_backend_timeout(loop);
+```
+默认值为0，这个值会在之后被传入到epoll_wait中，0表示立即返回， -1 表示永久阻塞，> 0 表示阻塞时间。
+然后通过 uv_backend_timeout 进行计算得来。
+``` c++
+int uv_backend_timeout(const uv_loop_t* loop) {
+  // https://github.com/libuv/libuv/blob/v1.35.0/src/uv-common.c#L521-L523
+  // http://docs.libuv.org/en/v1.x/guide/eventloops.html#stopping-an-event-loop
+  if (loop->stop_flag != 0)
+    return 0;
+
+  if (!uv__has_active_handles(loop) && !uv__has_active_reqs(loop))
+    return 0;
+
+  if (!QUEUE_EMPTY(&loop->idle_handles))
+    return 0;
+
+  if (!QUEUE_EMPTY(&loop->pending_queue))
+    return 0;
+
+  if (loop->closing_handles)
+    return 0;
+
+  return uv__next_timeout(loop);
+}
+```
+- 当事件循环 tick 被 uv_stop() 函数标记为停止#时，返回 0，即不阻塞。
+- 当事件循环 tick 不处于活动状态时且不存在活动的 request 时返回 0，即不阻塞。
+- 当 idle 句柄队列不为空时，返回 0，即不阻塞。
+- 当 pending callbacks 的回调队列不为空时，返回 0，即不阻塞。
+- 当存在 closing 句柄，即存在 close 事件回调时，返回 0，即不阻塞。
+
+如以上条件都不满足，则通过 `uv__next_timeout` 方法获取。
+``` c++
+int uv__next_timeout(const uv_loop_t* loop) {
+  const struct heap_node* heap_node;
+  const uv_timer_t* handle;
+  uint64_t diff;
+
+  // libuv 计时器二叉最小堆的根节点为所有计时器中距离当前时间节点最近的计时器
+  heap_node = heap_min(timer_heap(loop));
+
+  // 此处 true 条件为无限制的阻塞当前 poll 阶段
+  if (heap_node == NULL)
+    return -1; /* block indefinitely */
+
+  handle = container_of(heap_node, uv_timer_t, heap_node);
+
+  // 若最近时间节点的计时器小于等于当前事件循环 `tick` 开始的时间节点
+  // 那么不阻塞，并进入下一阶段，直至进入下一 `tick` 的 `timer` 阶段执行回调函数
+  if (handle->timeout <= loop->time)
+    return 0;
+
+  // 如 nodejs 文档中对 poll 阶段计算阻塞时间的描述
+  // 以下语句用于计算当前 poll 阶段应该阻塞的时间
+  diff = handle->timeout - loop->time;
+  // INT_MAX 在 limits.h 头文件中声明
+  if (diff > INT_MAX)
+    diff = INT_MAX;
+
+  return (int) diff;
+}
+```
 
 > 一旦poll queue为空，事件循环将检查是否已达到其时间阈值的timers。 如果一个或多个timer时间已经到达，则事件循环将返回到timers阶段以执行这些计时器的回调。
 
@@ -253,10 +333,10 @@ setImmediate() fires on the following iteration or 'tick' of the event loop。�
 
 #### go协程模型
 
-
-
 #### 最后
 最后附上一下 uv__io_poll 的方法源码，其实就是调用了epoll的系统方法。
+其中涉及对epoll_wait的调用，epoll_wait返回接收到时间的文件描述符fd。需要注意的是如果传入的 timeout为0的话，那么会立刻返回，如果为-1则会永远阻塞。
+
 ``` c++
 void uv__io_poll(uv_loop_t* loop, int timeout) {
   /* A bug in kernels < 2.6.37 makes timeouts larger than ~30 minutes
@@ -578,3 +658,6 @@ update_timeout:
   }
 }
 ```
+
+#### 参考文档
+[从 libuv 看 nodejs 事件循环](https://set.sh/post/200317-how-nodejs-event-loop-works)
