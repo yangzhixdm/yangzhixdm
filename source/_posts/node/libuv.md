@@ -9,20 +9,29 @@ description: 最近一直在研究 node 的异步机制的实现，记录其中�
 最近一段时间不知道为啥，对于node性能机制非常好奇，就开始看各种书籍以及资料。所以就有了这一篇总结。
 
 #### 计算机基础知识
-1 中断
+##### 中断
 中断是指计算机运行过程中，出现某些意外情况需主机干预时，机器能自动停止正在运行的程序并转入处理新情况的程序，处理完毕后又返回原被暂停的程序继续运行。
 包括硬件事件，用户事件，计算机故障，断电等事件。
 
-2 用户态，内核态
+这里还涉及了一个 `中断映射表`，映射表中存储了对应的 中断的执行方法。不同的中断都对应了一个编号比如（0x80)就是常说的80中断，发送给cpu的指令只是中断的编号，
+然后从中断映射表中查询出对应的回调策略处理程序。
+##### DMA
+
+##### 用户态，内核态
 
 *nix 系统在启动的时候，会对内存进行分配，内核kernel使用部分为内核态，之外让出的部分供应用程序使用为用户态。
 系统内核kernel中封装了对内存以及硬件操作的api。用户程序需要操纵内核态的数据，则需要通过内核kernel进行处理。这里就需要涉及从用户态切换到内核态。
 而切换是需要代价的。
 
-3 保护机制
+这里当应用程序需要调用内核程序时，会将 用户态保存的数据进行拷贝到内核态中，然后内核将数据放入到 `缓冲区` （输入缓冲区和输出缓冲区）中，然后内核在缓冲区写入完成之后，统一进行处理。
+如果 内核 缓冲区 在被内核处理的过程中，用户态发了数据，那么用户态发送的数据将会被阻塞。直到缓冲区的数据被处理完成，才会继续处理新发送过来的数据。
+
+用户应用程序如果在 `输出缓冲区` 数据没有发送完全之前关闭连接，那么数据不会丢失，缓冲区会继续发送，直到数据完成。但是如果是 `输入缓冲区` 的数据还没有发送完成，用户程序已经关闭，那么数据将会丢失。
+
+##### 保护机制
 系统对内核进行保护，禁止高级应用程序直接操内核数据。
 
-4 切换
+##### 切换
 用户态和内核态的切换。
 
 #### IO 多路复用
@@ -47,6 +56,7 @@ nodejs 与浏览器端的 Web API 版本的事件循环最大的不同的是：
 这里的poll，应该是存在另外一个进程，进行 epoll_wait（多路复用epoll机制），然后每次去 poll 一下，看fd的队列中是否存在需要进行处理的队列，
 如果有的话就进行执行，否则就直接返回。
 ```
+```
     ┌───────────────────────────┐
 ┌─> │           timers          │
 │   └─────────────┬─────────────┘
@@ -66,133 +76,6 @@ nodejs 与浏览器端的 Web API 版本的事件循环最大的不同的是：
 └───┤      close callbacks      │
     └───────────────────────────┘
 ```
-##### timers
-主要用于setTimeout和setInterval.
-但是timer的执行时机收到poll 阶段的影响。
-比如下面这个例子：
-``` javascript
-const fs = require('fs');
-
-function someAsyncOperation(callback) {
-  // Assume this takes 95ms to complete
-  fs.readFile('/path/to/file', callback);
-}
-
-const timeoutScheduled = Date.now();
-
-setTimeout(() => {
-  const delay = Date.now() - timeoutScheduled;
-
-  console.log(`${delay}ms have passed since I was scheduled`);
-}, 100);
-
-// do someAsyncOperation which takes 95 ms to complete
-someAsyncOperation(() => {
-  const startCallback = Date.now();
-
-  // do something that will take 10ms...
-  while (Date.now() - startCallback < 10) {
-    // do nothing
-  }
-});
-```
-
-> 为了避免 event loop 饿死，libuv 内部在pool阶段 有一个最大执行时间，超时之后必须返回去执行其他的阶段。
-
-##### pending callbacks
-执行一些操作系统的回调（system operations ），比如 TCP errors，比如，如果TCP socket尝试链接时，接收到一个 ECONNREFUSED 状态吗，一些 *nix系统就会等待去记录一个错误。这个步骤将会在pending callbacks阶段执行。
-
-##### poll
-The poll phase has two main functions:
-
-- Calculating how long it should block and poll for I/O, then
-- Processing events in the poll queue.
-
-个人觉得这里的 计算 io的阻塞和轮训时间，应该只是一个预估的过程，通过poll queue中的事件数量来进行一个大体的预估。
-
-进入poll 阶段之后：
-- 如果 poll queue队列不为空，直接开始同步执行poll queue中回调，直到全部执行完或者触发最大的系统限制时间。
-- 如果poll queue为空，则判断是否存在是否有被setImmediate绑定的回调，如果有则直接执行，否则event loop 会等待回调进行到当前poll queue中，并立即执行他们。
-
-在这之前 系统会去获取 timeout的值，
-``` c++
-  timeout = 0
-  if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
-    timeout = uv_backend_timeout(loop);
-```
-默认值为0，这个值会在之后被传入到epoll_wait中，0表示立即返回， -1 表示永久阻塞，> 0 表示阻塞时间。
-然后通过 uv_backend_timeout 进行计算得来。
-``` c++
-int uv_backend_timeout(const uv_loop_t* loop) {
-  // https://github.com/libuv/libuv/blob/v1.35.0/src/uv-common.c#L521-L523
-  // http://docs.libuv.org/en/v1.x/guide/eventloops.html#stopping-an-event-loop
-  if (loop->stop_flag != 0)
-    return 0;
-
-  if (!uv__has_active_handles(loop) && !uv__has_active_reqs(loop))
-    return 0;
-
-  if (!QUEUE_EMPTY(&loop->idle_handles))
-    return 0;
-
-  if (!QUEUE_EMPTY(&loop->pending_queue))
-    return 0;
-
-  if (loop->closing_handles)
-    return 0;
-
-  return uv__next_timeout(loop);
-}
-```
-- 当事件循环 tick 被 uv_stop() 函数标记为停止#时，返回 0，即不阻塞。
-- 当事件循环 tick 不处于活动状态时且不存在活动的 request 时返回 0，即不阻塞。
-- 当 idle 句柄队列不为空时，返回 0，即不阻塞。
-- 当 pending callbacks 的回调队列不为空时，返回 0，即不阻塞。
-- 当存在 closing 句柄，即存在 close 事件回调时，返回 0，即不阻塞。
-
-如以上条件都不满足，则通过 `uv__next_timeout` 方法获取。
-``` c++
-int uv__next_timeout(const uv_loop_t* loop) {
-  const struct heap_node* heap_node;
-  const uv_timer_t* handle;
-  uint64_t diff;
-
-  // libuv 计时器二叉最小堆的根节点为所有计时器中距离当前时间节点最近的计时器
-  heap_node = heap_min(timer_heap(loop));
-
-  // 此处 true 条件为无限制的阻塞当前 poll 阶段
-  if (heap_node == NULL)
-    return -1; /* block indefinitely */
-
-  handle = container_of(heap_node, uv_timer_t, heap_node);
-
-  // 若最近时间节点的计时器小于等于当前事件循环 `tick` 开始的时间节点
-  // 那么不阻塞，并进入下一阶段，直至进入下一 `tick` 的 `timer` 阶段执行回调函数
-  if (handle->timeout <= loop->time)
-    return 0;
-
-  // 如 nodejs 文档中对 poll 阶段计算阻塞时间的描述
-  // 以下语句用于计算当前 poll 阶段应该阻塞的时间
-  diff = handle->timeout - loop->time;
-  // INT_MAX 在 limits.h 头文件中声明
-  if (diff > INT_MAX)
-    diff = INT_MAX;
-
-  return (int) diff;
-}
-```
-
-> 一旦poll queue为空，事件循环将检查是否已达到其时间阈值的timers。 如果一个或多个timer时间已经到达，则事件循环将返回到timers阶段以执行这些计时器的回调。
-
-##### check
-This phase allows a person to execute callbacks immediately after the poll phase has completed. If the poll phase becomes idle and scripts have been queued with setImmediate(), the event loop may continue to the check phase rather than waiting.
-
-setImmediate() is actually a special timer that runs in a separate phase of the event loop. It uses a libuv API that schedules callbacks to execute after the poll phase has completed.
-
-Generally, as the code is executed, the event loop will eventually hit the poll phase where it will wait for an incoming connection, request, etc. However, if a callback has been scheduled with setImmediate() and the poll phase becomes idle, it will end and continue to the check phase rather than waiting for poll events.
-
-##### close
-如果 socket突然意外关闭，将会在此阶段调用close.否则将会在 process.nextTick中进行调用。
 ```
     ┌────────────────────────────────────────────────────────────────┐ ┌─────────────────────────────────┐
     │                                                         libuv  | |                      JavaScript |
@@ -282,6 +165,219 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
   return r;
 }
 ```
+##### timers
+主要用于setTimeout和setInterval.
+但是timer的执行时机收到poll 阶段的影响。
+> 无论在 nodejs 还是 浏览器引擎，timer都不保证在到达时间后回调函数一定会被立即执行，它们只能保证在到达时间阈值后，尽快执行。
+``` c++
+while (r != 0 && loop->stop_flag == 0) {
+  // 每次循环迭代开始之前，开始设置开始时间
+  uv__update_time(loop);
+  // ...
+}
+```
+
+``` c++
+UV_UNUSED(static void uv__update_time(uv_loop_t* loop)) {
+  /* Use a fast time source if available.  We only need millisecond precision.
+   */
+  loop->time = uv__hrtime(UV_CLOCK_FAST) / 1000000;
+}
+```
+
+``` c++
+void uv__run_timers(uv_loop_t* loop) {
+  struct heap_node* heap_node;
+  uv_timer_t* handle;
+
+  // 循环遍历timer时间节点遍历的最小堆
+  for (;;) {
+    // 获取最小堆
+    heap_node = heap_min(timer_heap(loop));
+    // 不存在
+    if (heap_node == NULL)
+      break;
+
+    handle = container_of(heap_node, uv_timer_t, heap_node);
+    // 最小堆顶点如果 > 当前时间，那么直接可以退出
+    if (handle->timeout > loop->time)
+      break;
+    // 否则开始循环执行
+    uv_timer_stop(handle);
+    uv_timer_again(handle);
+    handle->timer_cb(handle);
+  }
+}
+```
+
+比如下面这个例子：
+``` javascript
+const fs = require('fs');
+
+function someAsyncOperation(callback) {
+  // Assume this takes 95ms to complete
+  fs.readFile('/path/to/file', callback);
+}
+
+const timeoutScheduled = Date.now();
+
+setTimeout(() => {
+  const delay = Date.now() - timeoutScheduled;
+
+  console.log(`${delay}ms have passed since I was scheduled`);
+}, 100);
+
+// do someAsyncOperation which takes 95 ms to complete
+someAsyncOperation(() => {
+  const startCallback = Date.now();
+
+  // do something that will take 10ms...
+  while (Date.now() - startCallback < 10) {
+    // do nothing
+  }
+});
+```
+
+> 为了避免 event loop 饿死，libuv 内部在pool阶段 有一个最大执行时间，超时之后必须返回去执行其他的阶段。
+
+##### node 内置的定时器
+``` c++
+const TIMEOUT_MAX = 2 ** 31 - 1
+
+// Timer constructor function.
+// The entire prototype is defined in lib/timers.js
+function Timeout(callback, after, args, isRepeat, isRefed) {
+  after *= 1 // Coalesce to number or NaN
+  if (!(after >= 1 && after <= TIMEOUT_MAX)) {
+    if (after > TIMEOUT_MAX) {
+      process.emitWarning(
+        `${after} does not fit into` +
+          ' a 32-bit signed integer.' +
+          '\nTimeout duration was set to 1.',
+        'TimeoutOverflowWarning'
+      )
+    }
+    after = 1 // Schedule on next tick, follows browser behavior
+  }
+
+  this._idleTimeout = after
+  this._idlePrev = this
+  this._idleNext = this
+  this._idleStart = null
+  // This must be set to null first to avoid function tracking
+  // on the hidden class, revisit in V8 versions after 6.2
+  this._onTimeout = nullv
+  this._onTimeout = callback
+  this._timerArgs = args
+  this._repeat = isRepeat ? after : null
+  this._destroyed = false
+
+  if (isRefed) incRefCount()
+  this[kRefed] = isRefed
+
+  initAsyncResource(this, 'Timeout')
+}
+```
+> 时间阈值的取值范围是 1 ~ 231-1 ms，且为整数，如果数据不合法，会被重置为 1，所以 `setTimeout(fn, 0)` ,在node中其实是被重置为 `setTimeout(fn, 1)`
+
+##### pending callbacks
+执行一些操作系统的回调（system operations ），比如 TCP errors，比如，如果TCP socket尝试链接时，接收到一个 ECONNREFUSED 状态吗，一些 *nix系统就会等待去记录一个错误。这个步骤将会在pending callbacks阶段执行。
+
+##### poll
+The poll phase has two main functions:
+
+- Calculating how long it should block and poll for I/O, then
+- Processing events in the poll queue.
+
+个人觉得这里的 计算 io的阻塞和轮训时间，应该只是一个预估的过程，通过poll queue中的事件数量来进行一个大体的预估。
+
+进入poll 阶段之后：
+- 如果 poll queue队列不为空，直接开始同步执行poll queue中回调，直到全部执行完或者触发最大的系统限制时间。
+- 如果poll queue为空，则判断是否存在是否有被setImmediate绑定的回调，如果有则直接执行，否则event loop 会等待回调进行到当前poll queue中，并立即执行他们。
+
+在这之前 系统会去获取 timeout的值，
+``` c++
+  timeout = 0
+  if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
+    timeout = uv_backend_timeout(loop);
+```
+默认值为0，这个值会在之后被传入到epoll_wait中，0表示立即返回， -1 表示永久阻塞，> 0 表示阻塞时间。
+然后通过 uv_backend_timeout 进行计算得来。
+``` c++
+int uv_backend_timeout(const uv_loop_t* loop) {
+  // https://github.com/libuv/libuv/blob/v1.35.0/src/uv-common.c#L521-L523
+  // http://docs.libuv.org/en/v1.x/guide/eventloops.html#stopping-an-event-loop
+  if (loop->stop_flag != 0)
+    return 0;
+
+  if (!uv__has_active_handles(loop) && !uv__has_active_reqs(loop))
+    return 0;
+
+  if (!QUEUE_EMPTY(&loop->idle_handles))
+    return 0;
+
+  if (!QUEUE_EMPTY(&loop->pending_queue))
+    return 0;
+
+  if (loop->closing_handles)
+    return 0;
+
+  return uv__next_timeout(loop);
+}
+```
+- 当事件循环 tick 被 uv_stop() 函数标记为停止#时，返回 0，即不阻塞。
+- 当事件循环 tick 不处于活动状态时且不存在活动的 request 时返回 0，即不阻塞。
+- 当 idle 句柄队列不为空时，返回 0，即不阻塞。
+- 当 pending callbacks 的回调队列不为空时，返回 0，即不阻塞。
+- 当存在 closing 句柄，即存在 close 事件回调时，返回 0，即不阻塞。
+
+如以上条件都不满足，则通过 `uv__next_timeout` 方法获取。
+``` c++
+int uv__next_timeout(const uv_loop_t* loop) {
+  const struct heap_node* heap_node;
+  const uv_timer_t* handle;
+  uint64_t diff;
+
+  // libuv 计时器二叉最小堆的根节点为所有计时器中距离当前时间节点最近的计时器
+  heap_node = heap_min(timer_heap(loop));
+
+  // 此处 true 条件为无限制的阻塞当前 poll 阶段
+  if (heap_node == NULL)
+    return -1; /* block indefinitely */
+
+  handle = container_of(heap_node, uv_timer_t, heap_node);
+
+  // 若最近时间节点的计时器小于等于当前事件循环 `tick` 开始的时间节点
+  // 那么不阻塞，并进入下一阶段，直至进入下一 `tick` 的 `timer` 阶段执行回调函数
+  if (handle->timeout <= loop->time)
+    return 0;
+
+  // 如 nodejs 文档中对 poll 阶段计算阻塞时间的描述
+  // 以下语句用于计算当前 poll 阶段应该阻塞的时间
+  diff = handle->timeout - loop->time;
+  // INT_MAX 在 limits.h 头文件中声明
+  if (diff > INT_MAX)
+    diff = INT_MAX;
+
+  return (int) diff;
+}
+```
+这里要注意的是，以下的条件都是给予上面所属的5个条件都不成立的情况下，才会考虑一下的情况,(大体条件即为：不存在其他的事件阶段):
+- 若不存在任何计时器，那么当前事件循环 tick 中的 poll 阶段将 无限制阻塞。以实现一旦存在 I/O 回调函数加入到 poll queue 中即可立即得到执行。
+- 若最近计时器时间节点小于等于开始时间，则表明在计时器二叉最小堆中 至少存在一个 过期的计时器，那么当前 poll 阶段的超时时间将被设置为 0，即表示 poll 阶段不发生阻塞。这是为了尽可能快的进入下一阶段，即尽可能快地结束当前事件循环 tick。在进入下一事件循环 tick 时，在 timer 阶段，上一 tick 中过期的计时器回调函数得以执行。
+- 若最近计时器时间节点大于开始时间，则计算两个计时器之前的差值，且不大于 int 类型最大值。poll 将根据此差值来阻塞当前阶段，这么做是为了在轮询阶段，尽可能快的处理异步 I/O 事件。此时我们也可以理解为 事件循环 tick 始终有一种维持在 poll 阶段的倾向。
+
+> 一旦poll queue为空，事件循环将检查是否已达到其时间阈值的timers。 如果一个或多个timer时间已经到达，则事件循环将返回到timers阶段以执行这些计时器的回调。
+
+##### check
+This phase allows a person to execute callbacks immediately after the poll phase has completed. If the poll phase becomes idle and scripts have been queued with setImmediate(), the event loop may continue to the check phase rather than waiting.
+
+setImmediate() is actually a special timer that runs in a separate phase of the event loop. It uses a libuv API that schedules callbacks to execute after the poll phase has completed.
+
+Generally, as the code is executed, the event loop will eventually hit the poll phase where it will wait for an incoming connection, request, etc. However, if a callback has been scheduled with setImmediate() and the poll phase becomes idle, it will end and continue to the check phase rather than waiting for poll events.
+
+##### close
+如果 socket突然意外关闭，将会在此阶段调用close.否则将会在 process.nextTick中进行调用。
 
 ##### setTimeout和setImmediate
 - setImmediate() is designed to execute a script once the current poll phase completes.
@@ -661,3 +757,7 @@ update_timeout:
 
 #### 参考文档
 [从 libuv 看 nodejs 事件循环](https://set.sh/post/200317-how-nodejs-event-loop-works)
+[The Node.js Event Loop, Timers, and process.nextTick()](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
+[libuv Design overview](http://docs.libuv.org/en/v1.x/design.html)
+[2016 Node Interactive talk-compressed](https://drive.google.com/file/d/0B1ENiZwmJ_J2a09DUmZROV9oSGc/view)
+[Handling IO](https://blog.insiderattack.net/handling-io-nodejs-event-loop-part-4-418062f917d1)
