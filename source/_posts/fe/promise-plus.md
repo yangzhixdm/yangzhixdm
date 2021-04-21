@@ -91,6 +91,46 @@ Promise.resolve().then(() => {
 ```
 输出结果为 `0 1 4 2 3`
 
+关于为啥多了一个 `return` 就会多了这么多的幺蛾子，主要是由于 `onFulfilled` 方法的返回值导致的问题，如果该方法的返回值是一个 Promise 的话，那么将会涉及到它的展开。
+其实就是进行重新的 `resolvePromise`。并且会 调用 新返回的 Promise 的 `then` 方法添加一个 微任务。 
+- 2.3.3. Otherwise, if x is an object or function,
+  - 2.3.3.1 Let then be x.then. [3.5]
+  - 2.3.3.2 If retrieving the property x.then results in a thrown exception e, reject promise with e as the reason.
+  - 2.3.3.3 If then is a function,`call it with x as this`, first argument resolvePromise, and second argument rejectPromise, where:
+
+然后通过 闭包 将之前产生的 promise2 和现在的返回新的 promise进行连接。
+
+``` javascript
+resolvePromise(promise2, x, resolve, reject)
+```
+
+``` javascript
+then.call(
+  x, // call it with x as this
+  // 如果 resolvePromise 以值 y 为参数被调用，则运行 [[Resolve]](promise, y)
+  y => {
+    if (called) {
+      return
+    }
+    called = true;
+    // 此处promise就是上面的 promise2, y 即为 Promise实例 x resolve的value，resolve和reject方法都是 promise2 的resove/reject方法。
+    // 此处会将新的Promise实例x和 promise2 进行连接。
+    resolvePromise(promise, y, resolve, reject);
+  },
+  // 如果 rejectPromise 以据因 r 为参数被调用，则以据因 r 拒绝 promise
+  reason => {
+    if (called) {
+      return
+    }
+    called = true;
+    reject(reason);
+  }
+);
+```
+> 题外话：可能还有一个地方需要注意的是，其实在then方法进行调用的时候，并没有所谓的立刻加入到 微任务队列中，只是加入了一个function到 其 onfulfilledcallback队列中。
+真正加入到 微任务队列其实是在被决议也就是 resolve的时候才被添加到 宿主环境的 微任务队列中（这也是为什么多个Promise实例的执行顺序时候交替执行的）。
+正是因为只是被加入到Promise的队列中，那么才有可能实现将返回的promise和之前已经写好的then方法返回的promise进行连接。
+
 ##### PromiseA+ 规范实现
 ``` javascript
 /**
@@ -285,3 +325,4 @@ Promise.deferred = function () {
  
 module.exports = Promise
 ```
+最后附上 PromiseA+ 规范: [Promise](https://promisesaplus.com/)
