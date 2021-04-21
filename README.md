@@ -1,5 +1,7 @@
 ### Hi there 👋
 
+Everything will be ok in the end, if it’s not ok, it’s not the end.
+
 <!--
 **yangzhixdm/yangzhixdm** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
