@@ -43,7 +43,9 @@
         {% endif %}
         {# endshow #}
 
-        {{ post_template.render(post) }}
+        {% if post.hide !== true %}
+          {{ post_template.render(post, true) }}
+        {% endif %}
 
       {% endfor %}
 
