@@ -2,7 +2,7 @@
 title: Webpack externals 以及 libraryTarget 作用
 date: 2021-10-21 11:51:44
 tags:
-description: 
+description: 关于 webpack的一些配置的了解与熟悉。
 ---
 ### 参考文章
 [babel-polyfill](https://babel.docschina.org/docs/en/6.26.3/babel-polyfill/)
