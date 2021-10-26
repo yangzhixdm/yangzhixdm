@@ -1,7 +1,7 @@
 ---
 title: Webpack externals 以及 libraryTarget 作用
 date: 2021-10-21 11:51:44
-tags:
+tags: babel, webpack, fe-build
 description: 关于 webpack的一些配置的了解与熟悉。
 ---
 ### 参考文章
@@ -102,7 +102,7 @@ module.exports = {
         amd: 'lodash',
         root: '_', // indicates global variable
       },
-      // [string]
+      // [string]@babel/runtime-corejs2
       subtract: ['./math', 'subtract'],
     },
     // Function
