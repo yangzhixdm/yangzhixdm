@@ -23,7 +23,13 @@
 
 {% if theme.footer.powered %}
   <div class="powered-by">{#
-  #}{{ __('footer.powered', '<a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a>') }}{#
+  #}{{ __('footer.powered', '<a class="theme-link" href="https://xingjiang.me">幽梦大师</a>') }}{#
+#}</div>
+{% endif %}
+
+{% if theme.footer.tip %}
+  <div class="tip-by" style="font-size: 10px;">{#
+  #}{{ '且视他人之疑目如盏盏鬼火，大胆地去走你的夜路' }}{#
 #}</div>
 {% endif %}
 

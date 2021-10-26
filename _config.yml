@@ -10,7 +10,7 @@ keywords: 前端, javaScript, github
 author: 幽梦
 language: en
 timezone:
-#avatar: images/avatar.jpg
+avatar: images/avatar.jpg
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
