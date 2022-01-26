@@ -106,12 +106,23 @@ close callbacks: some close callbacks, e.g. socket.on('close', ...).
 ```
 这里边对于第二个阶段其实是很模糊的，以前叫做 i/O callbacks, 现在叫做  pending callbacks。
 对一 pending callbacks 阶段似乎都没有怎么仔细的解释。来自官方的解释：
+> In this phase I/O-related callbacks will be executed, deferred to the next loop iteration. For example, if you registered a callback fired after write or read to file has finished, or some network operation is completed, this callback will run in this phase.
+
 > In this phase, the event loop executes system-related callbacks if any. For example, let's say you are writing a node server and the port on which you want to run the process is being used by some other process, node will throw an error ECONNREFUSED, some of the *nix systems may want the callback to wait for execution due to some other tasks that the operating system is processing. Hence, such callbacks are pushed to the pending callbacks queue for execution.
 
 > The asynchronous I/O request is recorded into the queue and then the main call stack can continue working as expected. In the second phase of the Event Loop the I/O callbacks of completed or errored out I/O operations are processed.
 
 但是在 poll phases 阶段也看到这么一段：
 > This phase is the one which makes Node.js unique. In this phase, the event loop watches out for new async I/O callbacks. Nearly all the callbacks except the setTimeout, setInterval, setImmediate and closing callbacks are executed.
+
+> It’s basically a phase where nodejs looks for a new IO events and do it’s best to execute their callbacks immediately if possible. If not, it will defer a callback execution and register this as a pending callback. So it has two main responsibilities:
+
+> Calculate how long it should block until next I/O polling
+> Process events in the polling queue.
+
+> It also checks if there are any timer callbacks and if so, it jumps to that timer phase and execute them right away. This means that it can jump back not completing the iteration. If there are no timers awaiting it will continue.
+
+
 
 你就会发现这里的 poll 和 pending callbacks 阶段都是和 io 有关系，那么他们有啥区别呢。
 找了很多资料基本没有说清楚的。
