@@ -6,6 +6,8 @@ description: 关于 libuv 中 Event loop 以及 Thread pool 机制的一些探�
 ---
 
 ### 有言在先
+以下东西有点乱，有些东西我也没有想清楚，甚至都都是一些猜想，用于记录，以后方便需要答案。
+### 问题
 
 以下代码用于读取一个大概 100M 大小的文件，并记录其使用的时间：
 ``` javascript
@@ -40,7 +42,6 @@ for (let i = 0; i < 10 ; i++) {
 ```
 {% asset_image thread-pool-multiple.png %}
 
-### 问题
 为什么单个查询的时候就 260 MS, 怎么就 10 循环就 每个查询都变成了 1900 MS 呢？
 
 #### thread pool
@@ -123,7 +124,6 @@ close callbacks: some close callbacks, e.g. socket.on('close', ...).
 > It also checks if there are any timer callbacks and if so, it jumps to that timer phase and execute them right away. This means that it can jump back not completing the iteration. If there are no timers awaiting it will continue.
 
 
-
 你就会发现这里的 poll 和 pending callbacks 阶段都是和 io 有关系，那么他们有啥区别呢。
 找了很多资料基本没有说清楚的。
 
@@ -141,3 +141,7 @@ close callbacks: some close callbacks, e.g. socket.on('close', ...).
 [When is the thread pool used?](https://stackoverflow.com/questions/22644328/when-is-the-thread-pool-used)
 [Understanding the Node.js event loop phases and how it executes the JavaScript code.](https://dev.to/lunaticmonk/understanding-the-node-js-event-loop-phases-and-how-it-executes-the-javascript-code-1j9)
 [Behind Node.js - The Event Loop](https://nexocode.com/blog/posts/behind-nodejs-event-loop/)
+
+[Introduction to the event loop in Node.js](https://developer.ibm.com/tutorials/learn-nodejs-the-event-loop/)
+[IBM-Developer](https://github.com/jstevenperry/IBM-Developer/tree/master/Node.js/Course)
+[jstevenperry](https://jstevenperry.wordpress.com/)
