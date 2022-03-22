@@ -1,5 +1,5 @@
 ---
-title: Chrome 插件s
+title: Chrome 插件
 date: 2022-03-22 13:51:00
 tags: chrome
 description: chrome 插件开发中对 background.js 进行调试。
