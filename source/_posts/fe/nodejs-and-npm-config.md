@@ -14,7 +14,7 @@ node -v
 npm -v
 ```
 出现如下输出就算是安装成功了。
-![](/postimg/20150606122011869.png)
+{% asset_image 20150606122011869.png %}
 
 那么接下来存在的问题就是，如果直接使用npm 安装模块，那么它会将你的模块安装到c盘的 appdata下面去，以保证全局可以使用。
 这样的话，不方便管理。那么我想把它直接放在Nodejs的安装目录下，且能够保证全局下使用，怎么办呢？
@@ -27,7 +27,7 @@ npm config set cache "D:\nodejs\node_cache"
 
 当然首先需要在 nodejs的下面手动建立 node_global 和node_cache目录。
 node_global用来存放你下载的模块，node_cache 目录自然是存放cache。
-![](/postimg/20150606122339638.png)
+{% asset_image 20150606122339638.png %}
 
 之后你在使用 npm install 模块名 -g
 那么你下载的模块将会保存在 node_global中，而不会再保存在 c盘的appdata下面去了。
@@ -44,7 +44,7 @@ node_global用来存放你下载的模块，node_cache 目录自然是存放cach
 ``` bash
 d:\nodejs\node_global\node_mudules
 ```
-![](/postimg/20150606122016010.png)
+{% asset_image 20150606122016010.png %}
 
 这里可以先安装express 模块测试
 ``` bash
@@ -54,6 +54,6 @@ npm install express -g
 这证明exprss安装成功，且位置正确。
 配置完NODE_PATH毕之后再cmd 命令行中，输入命令，出现如下界面，这表示成功获取到 express 模块，配置正确。
 
-![](/postimg/20150606121756430.png)
+{% asset_image 20150606121756430.png %}
 
 NodeJs踩过的坑，以记录之，谨防忘记。

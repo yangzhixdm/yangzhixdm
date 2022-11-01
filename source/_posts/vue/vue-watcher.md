@@ -148,7 +148,7 @@ addDep (dep: Dep) {
 - 2 一个dep的subs中可以包含多个 watcher，如果这个属性被多次引用的话,简单一点：`属性可能被renderWatcher引用，也可能被computedWatcher引用，也可能被userWatcher进行监听`。
 - 3 一个watcher的deps中可以包含多个dep。比如renderWatcher中会引用多个属性，那么在renderWatcher中的deps中就会保存多个dep（导致的问题就是任意一个属性的变化都会导致重新render）。一个computed属性依赖多个data属性，那么就触发data属性的getter的时候，就会将依赖的属性的dep放入到当前的Dap.tareget(computedWatcher)的dep中，导致watcher.deps中会存在多个dep.
 
-![多个dep](/postimg/2021-01-11_235255.png)
+{% asset_image 2021-01-11_235255.png %}
 
 #### 更新
 关于更新可以看下一篇 [更新文档](http://localhost:4000/2019/08/20/vue/vue-update/)。
@@ -157,5 +157,4 @@ addDep (dep: Dep) {
 
 关于Vue中 watcher和 dep的关系，以及 watcher的批量更新机制，思考了很长一段时间，最终绘制成一张图，如下：
 
-![Watcher绑定机制](/postimg/20210111758443315.png)
-
+{% asset_image 20210111758443315.png %}

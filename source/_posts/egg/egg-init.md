@@ -21,7 +21,7 @@ postman.setGlobalVariable("csrfToken", csrf_token);
 ```
 
 然后再postman中添加 `x-csrf-token` 头即可。
-![postmain-csrf](/postimg/postmain-csrf.png)
+{% asset_image postmain-csrf.png %}
 
 
 #### egg 自动生成typings文件

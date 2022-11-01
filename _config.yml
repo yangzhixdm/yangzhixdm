@@ -4,17 +4,17 @@
 
 # Site
 title: 当年明月
-subtitle: 啥也不是
-description: 
+subtitle: 个人前端技术记录
+description: 且视他人之疑目如盏盏鬼火，大胆地去走你的夜路
 keywords: 前端, javaScript, github
-author: Yangym
+author: YangYM
 language: en
 timezone:
 avatar: images/avatar.jpg
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
+url: http://yangym.xyz
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -27,7 +27,8 @@ archive_dir: archives
 category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
-skip_render:
+skip_render: custom/**
+
 
 # Writing
 new_post_name: :title.md # File name of new posts
@@ -53,6 +54,11 @@ index_generator:
   path: ''
   per_page: 10
   order_by: -date
+
+archive_generator:
+  per_page: 50
+  yearly: true
+  monthly: true
   
 # Category & Tag
 default_category: uncategorized

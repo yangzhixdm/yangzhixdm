@@ -35,7 +35,7 @@ copyObj.name = 'hello'
 ### 原理
 重新给 copyObj 重新赋值会导致之前的引用 断开，重新指向新的对象。而如果只是修改其中的属性，那么只会导致其中的属性变更，而不会导致copyObj引用变更。
 这里还是涉及 对象 和 基本属性在内存中的存储方式。基本属性存储在栈中，而对象则会在内存中重新开辟堆栈。所以直接给 copyObj 赋值一个对象，就相当于是重新开辟了堆栈，并赋值给copyObj引用。如果只是修改其name属性，那么只是修改了栈中的值而已。
-![对象赋值机制](/postimg/obj-fuzhi.jpeg)
+{% asset_image obj-fuzhi.jpeg %}
 
 
 ### Node module 的处理方案

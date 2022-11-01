@@ -36,7 +36,7 @@ document.body.innerHTML = ''  // (1)
 menu = new Menu('His menu') // (2)
 ```
 来看一下内存结构：
-![](/postimg/20150711154107210.png)
+{% asset_image 20150711154107210.png %}
 
 在step(1) 中，Body.innerHTML 被清除掉，所以它的子节点也会被删除，因为他们不再被关联。
 
@@ -45,7 +45,7 @@ menu = new Menu('His menu') // (2)
 注意：个别的Dom元素 可以会保存在内存中即使他们的parent 被移除了。
 
 在step(2) 中，引用window.menu 被定义，所以之前的 menu因为不再被关联，它将会自动被移除通过浏览器的GC。
-![](/postimg/20150711154646812.png)
+{% asset_image 20150711154646812.png %}
 
 循环引用集合
 
@@ -61,7 +61,7 @@ function setHandler() {
 }
 ```
 在这里，这个DOM 元素直接引用匿名function通过onclick。并且这个function引用了elem元素通过外部的词法环境。
-![](/postimg/20150711155007031.png)
+{% asset_image 20150711155007031.png %}
 
 ( 这里多说一点，关于[[Scope]]是function的内部属性，在创建function的时候，会将外部函数的词法环境加入到[[Scope]]中，这里涉及到javascript的作用域问题。)
 
@@ -115,7 +115,7 @@ function setHandler() {
 不仅仅是DOM 元素，包括XMLHttpRequest 或者其它COM 对象，都会存在此现象。
 
 在IE下用来打破循环引用的方法：
-![](/postimg/20150711160712981.png)
+{% asset_image 20150711160712981.png %}
 
 我们定义了elem = null,所以这个处理函数不再关联到DOM 元素，这个循环自然打破。
 
@@ -138,7 +138,7 @@ xhr.onreadystatechange = function() {
 xhr.send(null)
 ```
 看一下内存结构：
-![](/postimg/20150711160935482.png)
+{% asset_image 20150711160935482.png %}
 
 这个异步xmlHttpRequest对象一直被浏览器追踪，因为有一个内部的引用关联到它。
 
@@ -160,7 +160,7 @@ xhr.send(null)
 xhr = null
 }, 50)
 ```
-![](/postimg/20150711161343489.png)
+{% asset_image 20150711161343489.png %}
 这样就没有了循环引用。
 
 setInterval/setTimeout

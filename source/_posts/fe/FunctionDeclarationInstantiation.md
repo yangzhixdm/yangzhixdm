@@ -77,7 +77,7 @@ undefined
 ### 寻找出路
 首先 chrome 的调试工具确实是个好东西，可以在函数内部随时打断点，可以查看作用域。
 
-![函数申明作用域](/postimg/function-declaration-scope.jpg)
+{% asset_image function-declaration-scope.jpg %}
 
 啥玩意，竟然有两个 x ? 还出来一个  block 和 local 作用域？ 
 完了，又出来一堆新的东西，我又不知道了，羞愧中。。。我是废物。
@@ -162,11 +162,11 @@ f()
 console.log(x)
 ```
 
-![函数申明作用域](/postimg/function-declaration-env.jpg)
+{% asset_image function-declaration-env.jpg %}
 
 再来看一下修改了 一下 x 的值之后的变化：
 
-![函数申明作用域](/postimg/function-declaration-change.jpg)
+{% asset_image function-declaration-change.jpg %}
 
 ### 搜索过程
 如果将 f function中的 let 定义的变量尝试传递给 y 方法会如何呢。
@@ -190,7 +190,7 @@ console.log(x)
 5
 1
 ```
-![函数申明作用域](/postimg/function-declaration-let.png)
+{% asset_image function-declaration-let.png %}
 
 这里会发现，执行到最后 global 作用域上面，有了一个 g 的变量属性，所以看到这里相当于是在 y 方法中，直接在 global 作用域上面定义了新的变量。
 所以可以看到 f 方法的变量作用域并没有被压入到 y 方法的作用域链中。
@@ -225,7 +225,7 @@ function f(x = 2) {
 f()
 console.log(x)
 ```
-![函数申明作用域](/postimg/function-declaration-process2.png)
+{% asset_image function-declaration-process2.png %}
 
 我蒙圈了，哈哈哈，这里的
 ```
@@ -250,7 +250,7 @@ debugger
 f()
 console.log(x)
 ```
-![函数申明作用域](/postimg/function-declaration-process3.png)
+{% asset_image function-declaration-process3.png %}
 
 将 y 方法中的 g 换成 x ，之后如愿的看到了，这里出现了 `Closure` 闭包，总算有那么一点正常了。
 那上面的 的 block 是什么原因呢？ 我还没有找到答案。
