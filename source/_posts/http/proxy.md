@@ -1,5 +1,5 @@
 ---
-title: HTTP 代理
+title: 前端HTTP 代理以及代理实现原理分享
 date: 2022-03-01 15:58:26
 tags: http
 description: 关于Whistle前端使用以及实现代理的原理分享。
